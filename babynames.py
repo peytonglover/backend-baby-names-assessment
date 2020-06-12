@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # BabyNames python coding exercise.
@@ -44,7 +44,23 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', 'Aaron 57', 'Abagail 895', ...]
     """
     names = []
-    # +++your code here+++
+    with open(filename) as f:
+        contents = f.readlines()
+    dob = re.compile(r'Popularity\sin\s(\d\d\d\d)')
+    name = re.compile(r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>')
+    namedict = {}
+    for line in reversed(contents):
+        if 'Popularity in ' in line:
+            year = dob.search(line)
+            names.append(year.group(0)[14:18])
+        else:
+            namex = name.findall(line)
+            if namex:
+                namedict[namex[0][1]] = namex[0][0]
+                namedict[namex[0][2]] = namex[0][0]
+                names.append(namex)
+    names = [x + ' ' + namedict[x] for x in namedict]
+    names = sorted(names)
     return names
 
 
@@ -83,7 +99,15 @@ def main(args):
     # or to write the list to a summary file (e.g. `baby1990.html.summary`).
 
     # +++your code here+++
-
+    if create_summary:
+        for filename in file_list:
+            names = extract_names(filename)
+            with open(filename + '.summary', 'w') as f:
+                f.write('\n'.join(names))
+    else:
+        for filename in file_list:
+            names = extract_names(filename)
+            print('\n'.join(names))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
